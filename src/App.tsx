@@ -1,5 +1,6 @@
 import "./App.css";
 import { useLogin } from "./context/UserContext";
+import TransferSUI from "./components/TransferSUI";
 
 function App() {
   const { isLoggedIn, userDetails, login, logOut } = useLogin();
@@ -18,7 +19,9 @@ function App() {
         )}
       </div>
 
-      <div></div>
+      <div>
+        <TransferSUI />
+      </div>
     </>
   );
 }
