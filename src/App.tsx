@@ -1,6 +1,7 @@
 import "./App.css";
 import { useLogin } from "./context/UserContext";
 import TransferSUI from "./components/TransferSUI";
+import MintNFT from "./components/MintNFT";
 
 function App() {
   const { isLoggedIn, userDetails, login, logOut } = useLogin();
@@ -21,6 +22,7 @@ function App() {
 
       <div>
         <TransferSUI />
+        <MintNFT />
       </div>
     </>
   );
