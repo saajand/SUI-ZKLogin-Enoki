@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useEnokiFlow } from "@mysten/enoki/react";
 import { useLogin } from "../context/UserContext";
-import { getFullnodeUrl, SuiClient } from "@mysten/sui.js/client";
-import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { fromBase64, toBase64 } from "@mysten/sui/utils";
 import { executeSponsoredTxn } from "../utils/sponsorWalletUtils";
-import { fromB64, toB64 } from "@mysten/sui.js/utils";
 
 const FULLNODE_URL = import.meta.env.VITE_APP_SUI_FULLNODE_URL as string;
 const NETWORK = import.meta.env.VITE_APP_NETWORK as "mainnet" | "testnet";
@@ -24,22 +24,22 @@ const MintNFT = () => {
       const keypair = await flow.getKeypair({ network: NETWORK });
 
       // Mint Sample NFT
-      const txb = new TransactionBlock();
+      const txb = new Transaction();
       txb.moveCall({
         target:
           "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint",
         arguments: [
-          txb.pure("Suiet NFT"),
-          txb.pure("Suiet Sample NFT"),
-          txb.pure(
+          txb.pure.string("Suiet NFT"),
+          txb.pure.string("Suiet Sample NFT"),
+          txb.pure.string(
             "https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4"
           ),
         ],
       });
 
-      const txnRes = await suiClient.signAndExecuteTransactionBlock({
+      const txnRes = await suiClient.signAndExecuteTransaction({
         signer: keypair,
-        transactionBlock: txb,
+        transaction: txb,
       });
 
       console.log("txnRes", txnRes);
@@ -61,14 +61,14 @@ const MintNFT = () => {
       setLoading(true);
 
       // Mint Sample NFT
-      const txb = new TransactionBlock();
+      const txb = new Transaction();
       txb.moveCall({
         target:
           "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint",
         arguments: [
-          txb.pure("Suiet NFT"),
-          txb.pure("Suiet Sample NFT"),
-          txb.pure(
+          txb.pure.string("Suiet NFT"),
+          txb.pure.string("Suiet Sample NFT"),
+          txb.pure.string(
             "https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4"
           ),
         ],
@@ -97,14 +97,14 @@ const MintNFT = () => {
       const keypair = await flow.getKeypair({ network: NETWORK });
 
       // Mint Sample NFT
-      const txb = new TransactionBlock();
+      const txb = new Transaction();
       txb.moveCall({
         target:
           "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint",
         arguments: [
-          txb.pure("Suiet NFT"),
-          txb.pure("Suiet Sample NFT"),
-          txb.pure(
+          txb.pure.string("Suiet NFT"),
+          txb.pure.string("Suiet Sample NFT"),
+          txb.pure.string(
             "https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4"
           ),
         ],
@@ -115,48 +115,42 @@ const MintNFT = () => {
         onlyTransactionKind: true,
       });
       console.log("kindBytes", kindBytes);
-      const kindBytesB64 = toB64(kindBytes);
+      const kindBytesB64 = toBase64(kindBytes);
 
-      const sponsorTxnData = await fetch(
-        `${BACKEND_URL}/api/v1/sponsor`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            network: "testnet",
-            sender: userDetails.address,
-            txBytes: kindBytesB64,
-            allowedAddresses: [userDetails.address],
-            allowedMoveCallTargets: [
-              "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint",
-            ],
-          }),
-        }
-      );
+      const sponsorTxnData = await fetch(`${BACKEND_URL}/api/v1/sponsor`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          network: "testnet",
+          sender: userDetails.address,
+          txBytes: kindBytesB64,
+          allowedAddresses: [userDetails.address],
+          allowedMoveCallTargets: [
+            "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint",
+          ],
+        }),
+      });
       const sponsorTxnDataJson = await sponsorTxnData.json();
       console.log("sponsorTxnDataJson", sponsorTxnDataJson);
 
       const sponsoredTxBytes = sponsorTxnDataJson.bytes;
       const signature = await keypair.signTransaction(
-        fromB64(sponsoredTxBytes)
+        fromBase64(sponsoredTxBytes)
       );
       console.log("signature", signature);
 
-      const executeTxnData = await fetch(
-        `${BACKEND_URL}/api/v1/execute`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            digest: sponsorTxnDataJson.digest,
-            signature: signature.signature,
-          }),
-        }
-      );
+      const executeTxnData = await fetch(`${BACKEND_URL}/api/v1/execute`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          digest: sponsorTxnDataJson.digest,
+          signature: signature.signature,
+        }),
+      });
       const executeTxnDataJson = await executeTxnData.json();
       console.log("executeTxnDataJson", executeTxnDataJson);
       if (executeTxnDataJson && executeTxnDataJson?.digest) {

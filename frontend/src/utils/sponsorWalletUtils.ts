@@ -1,10 +1,9 @@
-import { SuiClient } from "@mysten/sui.js/client";
-import { TransactionBlock } from "@mysten/sui.js/transactions";
-import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
+import { SuiClient } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { fromB64 } from "@mysten/bcs";
 import { genAddressSeed, getZkLoginSignature } from "@mysten/zklogin";
 import { jwtDecode } from "jwt-decode";
-import { SerializedSignature } from "@mysten/sui.js/cryptography";
 import { EnokiFlow } from "@mysten/enoki";
 
 const FULLNODE_URL = import.meta.env.VITE_APP_SUI_FULLNODE_URL as string;
@@ -37,7 +36,7 @@ export async function getSponsorPaymentObject(sponserAddress: string) {
 }
 
 export async function executeSponsoredTxn(
-  txb: TransactionBlock,
+  txb: Transaction,
   enokiFlow: EnokiFlow,
   userDetails: {
     provider: string;
@@ -73,20 +72,20 @@ export async function executeSponsoredTxn(
   });
 
   // construct a sponsored transaction from the kind bytes
-  const sponsoredTxb = TransactionBlock.fromKind(kindBytes);
+  const sponsoredTxb = Transaction.fromKind(kindBytes);
   sponsoredTxb.setSender(userDetails.address);
   sponsoredTxb.setGasOwner(sponserAddress);
   sponsoredTxb.setGasPayment(payment);
 
   const sponsoredTxnBuild = await sponsoredTxb.build({ client: suiClient });
-  const sponsoredSignedTxn = await sponsorKeypair.signTransactionBlock(
+  const sponsoredSignedTxn = await sponsorKeypair.signTransaction(
     sponsoredTxnBuild
   );
 
   const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(
     fromB64(session?.ephemeralKeyPair)
   );
-  const userSignedTxn = await ephemeralKeyPair.signTransactionBlock(
+  const userSignedTxn = await ephemeralKeyPair.signTransaction(
     sponsoredTxnBuild
   );
 
@@ -101,7 +100,7 @@ export async function executeSponsoredTxn(
     decodedJwt.aud as string
   ).toString();
 
-  const zkLoginSignature: SerializedSignature = getZkLoginSignature({
+  const zkLoginSignature = getZkLoginSignature({
     inputs: {
       ...session.proof,
       addressSeed,

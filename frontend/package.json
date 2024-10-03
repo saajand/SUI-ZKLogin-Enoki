@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@mysten/enoki": "^0.4.4",
-    "@mysten/zklogin": "^0.6.3",
+    "@mysten/sui": "^1.11.0",
+    "@mysten/zklogin": "^0.7.21",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
