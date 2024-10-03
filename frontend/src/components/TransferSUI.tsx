@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { TransactionBlock } from "@mysten/sui.js/transactions";
-import { SuiClient } from "@mysten/sui.js/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { SuiClient } from "@mysten/sui/client";
 import { useEnokiFlow } from "@mysten/enoki/react";
 import { useLogin } from "../context/UserContext";
-import { requestSuiFromFaucetV0, getFaucetHost } from "@mysten/sui.js/faucet";
+import { requestSuiFromFaucetV0, getFaucetHost } from "@mysten/sui/faucet";
 
 const FULLNODE_URL = import.meta.env.VITE_APP_SUI_FULLNODE_URL as string;
 const NETWORK = import.meta.env.VITE_APP_NETWORK as "mainnet" | "testnet";
@@ -35,14 +35,14 @@ const TransferSUI = () => {
       const suiClient = new SuiClient({ url: FULLNODE_URL });
       const keypair = await flow.getKeypair({ network: NETWORK });
 
-      const txb = new TransactionBlock();
+      const txb = new Transaction();
       const coin = txb.splitCoins(txb.gas, [0.2 * 10 ** 9]);
       txb.transferObjects([coin], recipientAddress);
       console.log("coin", coin);
 
-      const txnRes = await suiClient.signAndExecuteTransactionBlock({
+      const txnRes = await suiClient.signAndExecuteTransaction({
         signer: keypair,
-        transactionBlock: txb,
+        transaction: txb,
       });
 
       console.log("txnRes", txnRes);
