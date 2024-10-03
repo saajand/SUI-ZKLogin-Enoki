@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID;
+const NETWORK = import.meta.env.VITE_APP_NETWORK as "mainnet" | "testnet";
 
 interface LoginContextType {
   isLoggedIn: boolean;
@@ -49,6 +50,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       provider: "google",
       clientId: GOOGLE_CLIENT_ID,
       redirectUrl: window.location.origin,
+      network: NETWORK
     });
   };
 

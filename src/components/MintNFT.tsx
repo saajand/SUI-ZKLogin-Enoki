@@ -8,6 +8,7 @@ import {
 } from "../utils/sponsorWalletUtils";
 
 const FULLNODE_URL = import.meta.env.VITE_APP_SUI_FULLNODE_URL as string;
+const NETWORK = import.meta.env.VITE_APP_NETWORK as "mainnet" | "testnet";
 
 const MintNFT = () => {
   const flow = useEnokiFlow();
@@ -20,7 +21,7 @@ const MintNFT = () => {
     try {
       setLoading(true);
       const suiClient = new SuiClient({ url: FULLNODE_URL });
-      const keypair = await flow.getKeypair();
+      const keypair = await flow.getKeypair({ network: NETWORK });
 
       // Mint Sample NFT
       const txb = new TransactionBlock();
