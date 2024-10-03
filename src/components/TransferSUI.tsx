@@ -6,6 +6,7 @@ import { useLogin } from "../context/UserContext";
 import { requestSuiFromFaucetV0, getFaucetHost } from "@mysten/sui.js/faucet";
 
 const FULLNODE_URL = import.meta.env.VITE_APP_SUI_FULLNODE_URL as string;
+const NETWORK = import.meta.env.VITE_APP_NETWORK as "mainnet" | "testnet";
 
 const TransferSUI = () => {
   const flow = useEnokiFlow();
@@ -32,7 +33,7 @@ const TransferSUI = () => {
     try {
       setLoading(true);
       const suiClient = new SuiClient({ url: FULLNODE_URL });
-      const keypair = await flow.getKeypair();
+      const keypair = await flow.getKeypair({ network: NETWORK });
 
       const txb = new TransactionBlock();
       const coin = txb.splitCoins(txb.gas, [0.2 * 10 ** 9]);
